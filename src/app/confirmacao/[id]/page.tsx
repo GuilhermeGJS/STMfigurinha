@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle, Package, ArrowRight, Send } from "lucide-react";
+import { CheckCircle, Package, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -10,17 +10,12 @@ import { formatCurrency, orderStatusLabel, orderStatusColor } from "@/lib/utils"
 
 export const dynamic = "force-dynamic";
 
-type Props = {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ pagamento?: string }>;
-};
+type Props = { params: Promise<{ id: string }> };
 
-const WHATSAPP_NUMERO = "5519987203886";
-const PIX_CHAVE = "19987203886";
+const WHATSAPP = "5519987203886";
 
-export default async function ConfirmacaoPage({ params, searchParams }: Props) {
+export default async function ConfirmacaoPage({ params }: Props) {
   const { id } = await params;
-  const { pagamento } = await searchParams;
 
   const order = await prisma.order.findUnique({
     where: { id },
@@ -32,119 +27,45 @@ export default async function ConfirmacaoPage({ params, searchParams }: Props) {
 
   if (!order) notFound();
 
-  const isDinheiro = pagamento === "dinheiro";
-  const isPix = pagamento === "pix";
   const protocolo = order.id.slice(-8).toUpperCase();
-  const totalStr = formatCurrency(order.total);
+  const itensTexto = order.items
+    .map((item) => {
+      const nome = item.itemType === "personalizado" ? "Figurinha Personalizada" : "Produto";
+      return `- ${nome} x${item.quantity} ${formatCurrency(item.subtotal)}`;
+    })
+    .join("\n");
 
-  // Mensagem menor e com %0A em vez de \n pra garantir quebra de linha no wa.me
-  let textoWhats = "";
+  const msg = encodeURIComponent(
+    `*NOVO PEDIDO - STICKERSHOP*\n\n` +
+      `*Protocolo:* ${protocolo}\n` +
+      `*Total:* ${formatCurrency(order.total)}\n\n` +
+      `*ITENS:*\n${itensTexto}\n\n` +
+      `*ADMIN:*\n` +
+      `stickershop.onrender.com/admin\n` +
+      `admin@stickershop.com.br / admin123`
+  );
 
-  if (isDinheiro) {
-    textoWhats = encodeURIComponent(
-      `*NOVO PEDIDO - STICKERSHOP*\n\n` +
-      `*Protocolo:* #${protocolo}\n` +
-      `*Total:* ${totalStr}\n` +
-      `*Pagamento:* Dinheiro\n\n` +
-      `*ITENS:*\n${order.items.map((item) => {
-        const nome = item.itemType === "personalizado" ? "Figurinha Personalizada" : "Produto";
-        return `- ${nome} x${item.quantity} (${formatCurrency(item.subtotal)})`;
-      }).join("\n")}\n\n` +
-      `*ACESSAR ADMIN:*\n` +
-      `👉 ${process.env.AUTH_URL || "https://stickershop.onrender.com"}/admin\n` +
-      `📧 admin@stickershop.com.br\n` +
-      `🔑 admin123\n\n` +
-      `_Entre no painel admin, veja o pedido e organize a produção!_`
-    );
-  } else {
-    textoWhats = encodeURIComponent(
-      `*PEDIDO PAGO - STICKERSHOP*\n\n` +
-      `*Protocolo:* #${protocolo}\n` +
-      `*Valor:* ${totalStr}\n` +
-      `*Pagamento:* Pix (Nubank)\n` +
-      `*Chave Pix:* ${PIX_CHAVE}\n\n` +
-      `*ITENS:*\n${order.items.map((item) => {
-        const nome = item.itemType === "personalizado" ? "Figurinha Personalizada" : "Produto";
-        return `- ${nome} x${item.quantity} (${formatCurrency(item.subtotal)})`;
-      }).join("\n")}\n\n` +
-      `_Comprovante de pagamento enviado pelo cliente._`
-    );
-  }
-
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMERO}?text=${textoWhats}`;
+  const whatsappUrl = `https://wa.me/${WHATSAPP}?text=${msg}`;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl text-center">
       <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
         <CheckCircle className="h-8 w-8 text-green-600" />
       </div>
-      <h1 className="text-2xl font-bold mb-2">Pedido Realizado com Sucesso!</h1>
-      <p className="text-muted-foreground mb-8">
-        {isDinheiro
-          ? "Agora envie os detalhes do pedido pelo WhatsApp."
-          : isPix
-          ? "Seu pedido foi recebido! Faça o Pix para confirmar."
-          : "Seu pedido foi recebido e está sendo processado."}
+      <h1 className="text-2xl font-bold mb-2">Pedido Realizado!</h1>
+      <p className="text-muted-foreground mb-4">
+        Seu pedido foi registrado. Agora é só conversar com o vendedor pelo WhatsApp.
       </p>
 
-      {/* Pix info */}
-      {isPix && (
-        <Card className="text-left mb-6 border-purple-300 bg-purple-50">
-          <CardContent className="p-6 text-center space-y-4">
-            <div className="w-12 h-12 mx-auto rounded-full bg-purple-200 flex items-center justify-center text-2xl">
-              💰
-            </div>
-            <div>
-              <h2 className="font-bold text-lg text-purple-800">Pague com Pix</h2>
-              <p className="text-sm text-purple-700 mt-1">
-                Chave Pix do Nubank (celular):
-              </p>
-              <p className="font-mono font-bold text-2xl text-purple-900 mt-2">{PIX_CHAVE}</p>
-              <p className="text-sm text-purple-700 mt-2">
-                Valor: {totalStr}
-              </p>
-            </div>
-            <p className="text-xs text-purple-600">
-              Faça a transferência Pix e envie o comprovante pelo WhatsApp.
-            </p>
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-md border border-purple-300 bg-white px-4 py-2 text-sm font-medium text-purple-800 hover:bg-purple-100 transition-colors"
-            >
-              <Send className="h-4 w-4" /> Enviar Comprovante
-            </a>
-          </CardContent>
-        </Card>
-      )}
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-3 rounded-xl text-lg font-bold hover:bg-green-700 transition-colors mb-8"
+      >
+        <Send className="h-5 w-5" /> Chamar no WhatsApp
+      </a>
 
-      {/* Dinheiro WhatsApp */}
-      {isDinheiro && (
-        <Card className="text-left mb-6 border-green-300 bg-green-50">
-          <CardContent className="p-6 text-center space-y-4">
-            <Send className="h-10 w-10 text-green-600 mx-auto" />
-            <div>
-              <h2 className="font-bold text-lg text-green-800">Pagamento em Dinheiro</h2>
-              <p className="text-sm text-green-700 mt-1">
-                Clique no botão abaixo para enviar os detalhes do pedido diretamente
-                pelo WhatsApp. O pagamento será combinado com o vendedor.
-              </p>
-            </div>
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 w-full rounded-md bg-green-600 px-6 py-3 text-base font-medium text-white hover:bg-green-700 transition-colors"
-            >
-              <Send className="h-5 w-5" />
-              Enviar Pedido pelo WhatsApp
-            </a>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Order details */}
       <Card className="text-left mb-8">
         <CardContent className="p-6 space-y-4">
           <div className="flex justify-between items-center">
@@ -153,9 +74,7 @@ export default async function ConfirmacaoPage({ params, searchParams }: Props) {
               {orderStatusLabel(order.status)}
             </Badge>
           </div>
-
           <Separator />
-
           <div>
             <h3 className="font-medium text-sm mb-2">Itens</h3>
             <div className="space-y-2">
@@ -170,9 +89,7 @@ export default async function ConfirmacaoPage({ params, searchParams }: Props) {
               ))}
             </div>
           </div>
-
           <Separator />
-
           <div className="space-y-1 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
@@ -190,7 +107,6 @@ export default async function ConfirmacaoPage({ params, searchParams }: Props) {
               <span className="text-primary">{formatCurrency(order.total)}</span>
             </div>
           </div>
-
           <div>
             <h3 className="font-medium text-sm mb-1">Status</h3>
             <div className="space-y-2">
@@ -209,23 +125,13 @@ export default async function ConfirmacaoPage({ params, searchParams }: Props) {
       </Card>
 
       <div className="flex gap-3 justify-center flex-wrap">
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
-        >
-          <Send className="h-4 w-4" /> WhatsApp
-        </a>
         <Button variant="outline" asChild>
           <Link href="/meus-pedidos">
             <Package className="mr-2 h-4 w-4" /> Meus Pedidos
           </Link>
         </Button>
         <Button asChild>
-          <Link href="/">
-            Continuar Comprindo <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
+          <Link href="/">Continuar Comprando</Link>
         </Button>
       </div>
     </div>
