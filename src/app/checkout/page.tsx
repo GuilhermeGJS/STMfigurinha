@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { ArrowLeft, QrCode, Check, Banknote, Copy, Phone } from "lucide-react";
+import { ArrowLeft, QrCode, Check, Banknote, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/stores/cart";
@@ -11,14 +10,13 @@ import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import Link from "next/link";
 
-const PIX_CHAVE = "19987203886"; // Chave Pix Nubank - celular
-const WHATSAPP_NUMERO = "5519987203886";
+const PIX_CHAVE = "19987203886";
+const WHATSAPP = "5519987203886";
 
 type Step = "review" | "payment";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { data: session } = useSession();
   const { items, subtotal, clearCart } = useCartStore();
   const [step, setStep] = useState<Step>("review");
   const [loading, setLoading] = useState(false);
@@ -45,6 +43,28 @@ export default function CheckoutPage() {
     toast.success("Chave Pix copiada!");
   }
 
+  function abrirWhatsApp(protocolo: string, totalStr: string, itens: any[]) {
+    const itensTexto = itens.map((i: any) => {
+      const nome = i.itemType === "personalizado" ? "Figurinha Personalizada" : "Produto";
+      return `- ${nome} x${i.quantity} (${formatCurrency(i.subtotal)})`;
+    }).join("\n");
+
+    const msg = encodeURIComponent(
+      `*NOVO PEDIDO - STICKERSHOP*\n\n` +
+      `*Protocolo:* #${protocolo}\n` +
+      `*Total:* ${totalStr}\n` +
+      `*Pagamento:* Dinheiro\n\n` +
+      `*ITENS:*\n${itensTexto}\n\n` +
+      `*ACESSAR ADMIN:*\n` +
+      `👉 https://stickershop.onrender.com/admin\n` +
+      `📧 admin@stickershop.com.br\n` +
+      `🔑 admin123\n\n` +
+      `_Entre no painel admin e organize a producao!_`
+    );
+
+    window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, "_blank");
+  }
+
   async function handlePlaceOrder() {
     setLoading(true);
     try {
@@ -68,12 +88,22 @@ export default function CheckoutPage() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || "Erro");
+        throw new Error(err.error || "Erro ao criar pedido");
       }
 
       const order = await res.json();
+      const protocolo = order.id.slice(-8).toUpperCase();
+
       clearCart();
-      router.push(`/confirmacao/${order.id}?pagamento=${paymentMethod}`);
+
+      // DINHEIRO: abre WhatsApp direto e vai pra confirmação
+      if (paymentMethod === "dinheiro") {
+        abrirWhatsApp(protocolo, formatCurrency(order.total), order.items);
+        router.push(`/confirmacao/${order.id}?pagamento=dinheiro`);
+      } else {
+        // PIX: vai pra confirmação
+        router.push(`/confirmacao/${order.id}?pagamento=pix`);
+      }
     } catch (err: any) {
       toast.error(err.message || "Erro ao criar pedido.");
     } finally {
@@ -147,7 +177,7 @@ export default function CheckoutPage() {
               <QrCode className="h-5 w-5" />
               <div className="text-left flex-1">
                 <p className="font-medium text-sm">Pix</p>
-                <p className="text-xs text-muted-foreground">Pagamento instantâneo via Nubank</p>
+                <p className="text-xs text-muted-foreground">Chave: {PIX_CHAVE}</p>
               </div>
               {paymentMethod === "pix" && <Check className="h-5 w-5 text-primary" />}
             </button>
@@ -172,22 +202,19 @@ export default function CheckoutPage() {
             <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-2 text-purple-800">
                 <QrCode className="h-5 w-5" />
-                <span className="font-semibold">Pix — Chave do Nubank</span>
+                <span className="font-semibold">Pix — Chave Nubank</span>
               </div>
               <div className="bg-white rounded-lg p-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Chave Pix (celular)</p>
-                    <p className="font-mono font-bold text-lg">{PIX_CHAVE}</p>
-                  </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Chave (celular)</p>
+                  <p className="font-mono font-bold text-lg">{PIX_CHAVE}</p>
                 </div>
                 <Button variant="outline" size="sm" onClick={copiarChavePix}>
                   <Copy className="h-3 w-3 mr-1" /> Copiar
                 </Button>
               </div>
               <p className="text-xs text-purple-700">
-                Após finalizar, faça o Pix no valor de {formatCurrency(total)}. O pedido será confirmado após o pagamento.
+                Após finalizar, faça o Pix de {formatCurrency(total)}. Envie o comprovante pelo WhatsApp após o pagamento.
               </p>
             </div>
           )}
@@ -195,8 +222,8 @@ export default function CheckoutPage() {
           {/* Dinheiro info */}
           {paymentMethod === "dinheiro" && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
-              Ao finalizar, você será redirecionado para enviar os detalhes do pedido diretamente
-              pelo WhatsApp. O pagamento é combinado diretamente com o vendedor.
+              Ao clicar em <strong>Finalizar Pedido</strong>, o WhatsApp abrirá automaticamente
+              com todos os detalhes do pedido para enviar ao vendedor.
             </div>
           )}
 
