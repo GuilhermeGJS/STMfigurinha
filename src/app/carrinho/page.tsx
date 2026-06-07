@@ -56,8 +56,7 @@ export default function CartPage() {
   }
 
   const totalDiscount = (discounts?.discountTotal || 0) + (discounts?.couponDiscount || 0);
-  const shipping = subtotal() >= 99 ? 0 : 15.9;
-  const total = subtotal() - totalDiscount + shipping;
+  const total = subtotal() - totalDiscount;
 
   if (items.length === 0) {
     return (
@@ -157,23 +156,12 @@ export default function CartPage() {
                 </div>
               )}
 
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Frete</span>
-                <span>{shipping === 0 ? <span className="text-green-600 font-medium">Grátis!</span> : formatCurrency(shipping)}</span>
-              </div>
-
               <Separator />
 
               <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
                 <span className="text-primary">{formatCurrency(total)}</span>
               </div>
-
-              {subtotal() < 99 && (
-                <p className="text-xs text-muted-foreground text-center">
-                  Adicione mais {formatCurrency(99 - subtotal())} para ganhar frete grátis!
-                </p>
-              )}
             </div>
 
             <Button className="w-full" size="lg" asChild>

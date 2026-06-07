@@ -196,20 +196,6 @@ export default async function AdminOrderDetailPage({ params }: Props) {
             </CardContent>
           </Card>
 
-          {/* Address */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Entrega</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              <p>{order.addressStreet}, {order.addressNumber}</p>
-              {order.addressComplement && <p>{order.addressComplement}</p>}
-              <p>{order.addressDistrict}</p>
-              <p>{order.addressCity}/{order.addressState}</p>
-              <p>CEP: {order.addressZip}</p>
-            </CardContent>
-          </Card>
-
           {/* Summary */}
           <Card>
             <CardHeader>
@@ -226,10 +212,6 @@ export default async function AdminOrderDetailPage({ params }: Props) {
                   <span>-{formatCurrency(order.discountTotal)}</span>
                 </div>
               )}
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Frete</span>
-                <span>{order.shipping === 0 ? "Grátis" : formatCurrency(order.shipping)}</span>
-              </div>
               <Separator />
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>

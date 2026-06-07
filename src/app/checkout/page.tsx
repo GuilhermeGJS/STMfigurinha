@@ -5,26 +5,20 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ArrowLeft, CreditCard, QrCode, Barcode, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/stores/cart";
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import Link from "next/link";
 
-type Step = "address" | "review" | "payment";
+type Step = "review" | "payment";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const { items, subtotal, clearCart } = useCartStore();
-  const [step, setStep] = useState<Step>("address");
+  const [step, setStep] = useState<Step>("review");
   const [loading, setLoading] = useState(false);
-  const [address, setAddress] = useState({
-    street: "", number: "", complement: "",
-    district: "", city: "", state: "", zip: "",
-  });
   const [paymentMethod, setPaymentMethod] = useState<"pix" | "card" | "boleto">("pix");
   const [discounts, setDiscounts] = useState<any>(null);
 
@@ -41,8 +35,7 @@ export default function CheckoutPage() {
   }, []);
 
   const totalDiscount = (discounts?.discountTotal || 0) + (discounts?.couponDiscount || 0);
-  const shipping = subtotal() >= 99 ? 0 : 15.9;
-  const total = subtotal() - totalDiscount + shipping;
+  const total = subtotal() - totalDiscount;
 
   async function handlePlaceOrder() {
     setLoading(true);
@@ -59,7 +52,6 @@ export default function CheckoutPage() {
             quantity: i.quantity,
             unitPrice: i.unitPrice,
           })),
-          address,
           couponId: discounts?.couponId || null,
           promotionRuleId: discounts?.appliedRules?.[0]?.id || null,
           paymentMethod,
@@ -90,64 +82,22 @@ export default function CheckoutPage() {
 
       {/* Steps */}
       <div className="flex gap-2 mb-8">
-        {(["address", "review", "payment"] as Step[]).map((s, i) => (
+        {(["review", "payment"] as Step[]).map((s, i) => (
           <div key={s} className="flex items-center gap-2">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-              step === s ? "bg-primary text-white" : step === "review" && s === "address" || step === "payment" && s !== "payment" ? "bg-green-500 text-white" : "bg-muted text-muted-foreground"
+              step === s ? "bg-primary text-white" : step === "payment" && s === "review" ? "bg-green-500 text-white" : "bg-muted text-muted-foreground"
             }`}>
-              {step === "payment" && s !== "payment" ? <Check className="h-4 w-4" /> : step === "review" && s === "address" ? <Check className="h-4 w-4" /> : i + 1}
+              {step === "payment" && s === "review" ? <Check className="h-4 w-4" /> : i + 1}
             </div>
             <span className="text-xs hidden sm:inline text-muted-foreground">
-              {["Endereço", "Revisão", "Pagamento"][i]}
+              {["Revisão", "Pagamento"][i]}
             </span>
-            {i < 2 && <div className="w-8 h-px bg-border" />}
+            {i < 1 && <div className="w-8 h-px bg-border" />}
           </div>
         ))}
       </div>
 
-      {/* Step 1: Address */}
-      {step === "address" && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Endereço de Entrega</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2">
-              <Label>Rua</Label>
-              <Input value={address.street} onChange={e => setAddress({...address, street: e.target.value})} placeholder="Rua Exemplo" />
-            </div>
-            <div>
-              <Label>Número</Label>
-              <Input value={address.number} onChange={e => setAddress({...address, number: e.target.value})} placeholder="123" />
-            </div>
-            <div>
-              <Label>Complemento</Label>
-              <Input value={address.complement} onChange={e => setAddress({...address, complement: e.target.value})} placeholder="Apto 45" />
-            </div>
-            <div>
-              <Label>Bairro</Label>
-              <Input value={address.district} onChange={e => setAddress({...address, district: e.target.value})} placeholder="Centro" />
-            </div>
-            <div>
-              <Label>Cidade</Label>
-              <Input value={address.city} onChange={e => setAddress({...address, city: e.target.value})} placeholder="São Paulo" />
-            </div>
-            <div>
-              <Label>Estado</Label>
-              <Input value={address.state} onChange={e => setAddress({...address, state: e.target.value})} placeholder="SP" maxLength={2} />
-            </div>
-            <div>
-              <Label>CEP</Label>
-              <Input value={address.zip} onChange={e => setAddress({...address, zip: e.target.value})} placeholder="00000-000" />
-            </div>
-          </div>
-          <div className="flex justify-end pt-4">
-            <Button onClick={() => setStep("review")} disabled={!address.street || !address.number || !address.city}>
-              Continuar para Revisão
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Step 2: Review */}
+      {/* Step 1: Review */}
       {step === "review" && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Revisão do Pedido</h2>
@@ -162,18 +112,16 @@ export default function CheckoutPage() {
           <div className="space-y-1 text-sm">
             <div className="flex justify-between"><span>Subtotal</span><span>{formatCurrency(subtotal())}</span></div>
             {totalDiscount > 0 && <div className="flex justify-between text-green-600"><span>Descontos</span><span>-{formatCurrency(totalDiscount)}</span></div>}
-            <div className="flex justify-between"><span>Frete</span><span>{shipping === 0 ? "Grátis" : formatCurrency(shipping)}</span></div>
             <Separator />
             <div className="flex justify-between text-lg font-bold"><span>Total</span><span className="text-primary">{formatCurrency(total)}</span></div>
           </div>
-          <div className="flex gap-2 justify-end pt-4">
-            <Button variant="outline" onClick={() => setStep("address")}>Voltar</Button>
+          <div className="flex justify-end pt-4">
             <Button onClick={() => setStep("payment")}>Ir para Pagamento</Button>
           </div>
         </div>
       )}
 
-      {/* Step 3: Payment */}
+      {/* Step 2: Payment */}
       {step === "payment" && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Forma de Pagamento</h2>
@@ -204,9 +152,12 @@ export default function CheckoutPage() {
               <span>Total a pagar</span>
               <span className="text-primary">{formatCurrency(total)}</span>
             </div>
-            <Button className="w-full" size="lg" onClick={handlePlaceOrder} disabled={loading}>
-              {loading ? "Processando..." : "Finalizar Pedido"}
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setStep("review")}>Voltar</Button>
+              <Button className="flex-1" size="lg" onClick={handlePlaceOrder} disabled={loading}>
+                {loading ? "Processando..." : "Finalizar Pedido"}
+              </Button>
+            </div>
           </div>
         </div>
       )}

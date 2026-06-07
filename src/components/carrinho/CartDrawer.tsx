@@ -97,7 +97,7 @@ export function CartDrawer({ onClose }: { onClose: () => void }) {
           <span>{formatCurrency(subtotal())}</span>
         </div>
         <p className="text-xs text-muted-foreground mb-4">
-          Frete e descontos calculados no checkout
+          Descontos calculados no checkout
         </p>
         <Button className="w-full" size="lg" asChild onClick={onClose}>
           <Link href="/carrinho">Ir para o Carrinho</Link>

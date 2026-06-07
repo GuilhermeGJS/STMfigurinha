@@ -72,29 +72,11 @@ export default async function ConfirmacaoPage({ params }: Props) {
                 <span>-{formatCurrency(order.discountTotal)}</span>
               </div>
             )}
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Frete</span>
-              <span>{order.shipping === 0 ? "Grátis" : formatCurrency(order.shipping)}</span>
-            </div>
             <Separator />
             <div className="flex justify-between text-lg font-bold">
               <span>Total</span>
               <span className="text-primary">{formatCurrency(order.total)}</span>
             </div>
-          </div>
-
-          <Separator />
-
-          <div>
-            <h3 className="font-medium text-sm mb-1">Endereço de Entrega</h3>
-            <p className="text-sm text-muted-foreground">
-              {order.addressStreet}, {order.addressNumber}
-              {order.addressComplement && ` - ${order.addressComplement}`}
-              <br />
-              {order.addressDistrict} — {order.addressCity}/{order.addressState}
-              <br />
-              CEP: {order.addressZip}
-            </p>
           </div>
 
           <div>

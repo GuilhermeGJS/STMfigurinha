@@ -6,23 +6,20 @@ import { calculateDiscounts } from "@/lib/promocao-engine";
 export async function POST(req: Request) {
   try {
     const user = await getSessionUser();
-    // Allow guest checkout
     const userId = user && "id" in user ? (user as { id: string }).id : null;
 
-    const { items, address, couponId, promotionRuleId } = await req.json();
+    const { items, couponId, promotionRuleId } = await req.json();
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "Carrinho vazio." }, { status: 400 });
     }
 
-    // Calculate subtotal
     const subtotal = items.reduce(
       (sum: number, i: { unitPrice: number; quantity: number }) =>
         sum + i.unitPrice * i.quantity,
       0
     );
 
-    // Calculate discounts via engine
     const cartForEngine = items.map((i: any) => ({
       id: "temp",
       productId: i.productId,
@@ -34,27 +31,18 @@ export async function POST(req: Request) {
 
     const discountResult = await calculateDiscounts(cartForEngine);
     const totalDiscount = discountResult.discountTotal + discountResult.couponDiscount;
-    const shipping = subtotal >= 99 ? 0 : 15.9;
-    const total = subtotal - totalDiscount + shipping;
+    const total = subtotal - totalDiscount;
 
-    // Create order
     const order = await prisma.order.create({
       data: {
         userId: userId || "guest",
         status: "aguardando_pagamento",
         subtotal,
         discountTotal: totalDiscount,
-        shipping,
+        shipping: 0,
         total,
         couponId: discountResult.couponId || couponId,
         promotionRuleId: discountResult.appliedRules[0]?.id || promotionRuleId,
-        addressStreet: address?.street,
-        addressNumber: address?.number,
-        addressComplement: address?.complement,
-        addressDistrict: address?.district,
-        addressCity: address?.city,
-        addressState: address?.state,
-        addressZip: address?.zip,
         items: {
           create: items.map((i: any) => ({
             productId: i.productId || null,
@@ -76,7 +64,6 @@ export async function POST(req: Request) {
       },
     });
 
-    // Update coupon usage
     if (discountResult.couponId) {
       await prisma.coupon.update({
         where: { id: discountResult.couponId },

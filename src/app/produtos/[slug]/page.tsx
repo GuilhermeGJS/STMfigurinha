@@ -97,11 +97,6 @@ export default async function ProductDetailPage({ params }: Props) {
           {/* Info cards */}
           <div className="grid grid-cols-3 gap-3 pt-4 border-t">
             <div className="text-center p-3 bg-muted/50 rounded-lg">
-              <p className="text-lg font-bold">📦</p>
-              <p className="text-xs text-muted-foreground">Frete Grátis</p>
-              <p className="text-[10px] text-muted-foreground">acima de R$99</p>
-            </div>
-            <div className="text-center p-3 bg-muted/50 rounded-lg">
               <p className="text-lg font-bold">🏭</p>
               <p className="text-xs text-muted-foreground">Produção</p>
               <p className="text-[10px] text-muted-foreground">em 48h úteis</p>

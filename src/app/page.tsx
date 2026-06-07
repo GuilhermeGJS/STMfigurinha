@@ -38,7 +38,7 @@ export default async function HomePage() {
                 <span className="text-primary">sua identidade</span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-md">
-                Crie figurinhas personalizadas com suas fotos ou escolha entre centenas de designs exclusivos. Acabamentos premium e frete para todo Brasil.
+                Crie figurinhas personalizadas com suas fotos ou escolha entre centenas de designs exclusivos. Acabamentos premium e entrega rápida.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button size="lg" asChild>
@@ -55,9 +55,9 @@ export default async function HomePage() {
                 </Button>
               </div>
               <div className="flex gap-6 text-sm text-muted-foreground">
-                <span>✓ Frete Grátis acima de R$99</span>
                 <span>✓ Produção em 48h</span>
                 <span>✓ Acabamento Premium</span>
+                <span>✓ Qualidade Garantida</span>
               </div>
             </div>
             <div className="hidden md:flex justify-center">

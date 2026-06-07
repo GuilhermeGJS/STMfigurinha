@@ -37,7 +37,7 @@ export function Header() {
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       {/* Top bar */}
       <div className="bg-primary text-primary-foreground text-xs text-center py-1.5 px-4">
-        🎉 Frete grátis para pedidos acima de R$99,00 • Use STICKER20 e ganhe 20% off
+        🎉 Use STICKER20 e ganhe 20% off na sua primeira compra!
       </div>
 
       <div className="container mx-auto px-4">
