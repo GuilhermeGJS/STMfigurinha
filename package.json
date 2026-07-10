@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "vercel-build": "npx prisma generate && npx prisma db push --skip-generate --accept-data-loss && npx tsx prisma/seed.ts && next build",
+    "vercel-build": "npx prisma generate && npx prisma db push --force-reset --skip-generate --accept-data-loss && npx tsx prisma/seed.ts && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
