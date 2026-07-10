@@ -3,54 +3,57 @@ import { Star } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="border-t bg-muted/30 mt-auto">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+    <footer className="border-t bg-slate-900 text-slate-300 mt-auto">
+      <div className="container mx-auto px-4 py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
-            <Link href="/" className="flex items-center gap-2 font-bold text-lg mb-3">
-              <Star className="h-5 w-5 text-primary fill-primary" />
-              StickerShop
+            <Link href="/" className="flex items-center gap-2.5 font-bold text-xl mb-4 text-white">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center">
+                <Star className="h-5 w-5 text-white fill-white" />
+              </div>
+              Sticker<span className="text-violet-400">Shop</span>
             </Link>
-            <p className="text-sm text-muted-foreground">
-              Figurinhas personalizadas e colecionáveis de alta qualidade. Expresse sua criatividade!
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Figurinhas personalizadas e colecionáveis de alta qualidade. Expresse sua criatividade com acabamentos premium.
             </p>
           </div>
 
-          {/* Links */}
           <div>
-            <h4 className="font-semibold text-sm mb-3">Categorias</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="/categorias/anime" className="hover:text-foreground transition-colors">Anime</Link></li>
-              <li><Link href="/categorias/futebol" className="hover:text-foreground transition-colors">Futebol</Link></li>
-              <li><Link href="/categorias/memes" className="hover:text-foreground transition-colors">Memes</Link></li>
-              <li><Link href="/categorias/musica" className="hover:text-foreground transition-colors">Música</Link></li>
-              <li><Link href="/categorias/games" className="hover:text-foreground transition-colors">Games</Link></li>
+            <h4 className="font-semibold text-white text-sm mb-4 uppercase tracking-wider">Categorias</h4>
+            <ul className="space-y-2.5 text-sm">
+              {["Anime", "Futebol", "Memes", "Música", "Games", "Séries e Filmes"].map((cat) => (
+                <li key={cat}><Link href={`/categorias/${cat.toLowerCase().replace(" ", "-")}`} className="hover:text-white transition-colors">{cat}</Link></li>
+              ))}
             </ul>
           </div>
 
           <div>
-            <h4 className="font-semibold text-sm mb-3">Ajuda</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="/personalizar" className="hover:text-foreground transition-colors">Criar Personalizada</Link></li>
-              <li><Link href="#" className="hover:text-foreground transition-colors">Como Funciona</Link></li>
-              <li><Link href="#" className="hover:text-foreground transition-colors">Tamanhos e Acabamentos</Link></li>
-              <li><Link href="#" className="hover:text-foreground transition-colors">Política de Envio</Link></li>
-              <li><Link href="#" className="hover:text-foreground transition-colors">Contato</Link></li>
+            <h4 className="font-semibold text-white text-sm mb-4 uppercase tracking-wider">Ajuda</h4>
+            <ul className="space-y-2.5 text-sm">
+              {[
+                { label: "Criar Personalizada", href: "/personalizar" },
+                { label: "Como Funciona", href: "#" },
+                { label: "Tamanhos e Acabamentos", href: "#" },
+                { label: "Contato", href: "#" },
+              ].map((item) => (
+                <li key={item.label}><Link href={item.href} className="hover:text-white transition-colors">{item.label}</Link></li>
+              ))}
             </ul>
           </div>
 
           <div>
-            <h4 className="font-semibold text-sm mb-3">Contato</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <h4 className="font-semibold text-white text-sm mb-4 uppercase tracking-wider">Contato</h4>
+            <ul className="space-y-2.5 text-sm text-slate-400">
               <li>contato@stickershop.com.br</li>
-              <li>(11) 99999-9999</li>
+              <li>(19) 98720-3886</li>
               <li>Seg a Sex: 9h às 18h</li>
+              <li>WhatsApp disponível 24h</li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t text-center text-sm text-muted-foreground">
+        <div className="mt-12 pt-6 border-t border-slate-800 text-center text-sm text-slate-500">
           <p>&copy; {new Date().getFullYear()} StickerShop. Todos os direitos reservados.</p>
         </div>
       </div>

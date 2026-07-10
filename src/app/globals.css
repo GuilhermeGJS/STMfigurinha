@@ -4,32 +4,74 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 240 10% 97%;
+    --foreground: 240 10% 5%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --primary: 330 81% 48%;
+    --card-foreground: 240 10% 5%;
+    --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 5% 96%;
-    --secondary-foreground: 240 6% 10%;
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
-    --accent: 330 81% 96%;
-    --accent-foreground: 330 81% 40%;
-    --destructive: 0 84% 60%;
+    --secondary: 240 5% 92%;
+    --secondary-foreground: 240 6% 12%;
+    --muted: 240 5% 94%;
+    --muted-foreground: 240 4% 42%;
+    --accent: 262 83% 95%;
+    --accent-foreground: 262 83% 40%;
+    --destructive: 0 84% 55%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 6% 90%;
-    --ring: 330 81% 48%;
+    --border: 240 6% 88%;
+    --ring: 262 83% 58%;
     --radius: 0.75rem;
+    --brand-gradient: linear-gradient(135deg, #6d28d9 0%, #7c3aed 50%, #8b5cf6 100%);
+  }
+
+  .dark {
+    --background: 240 10% 4%;
+    --foreground: 240 10% 96%;
+    --card: 240 10% 7%;
+    --card-foreground: 240 10% 96%;
+    --primary: 262 83% 65%;
+    --primary-foreground: 240 10% 4%;
+    --secondary: 240 5% 12%;
+    --secondary-foreground: 240 10% 90%;
+    --muted: 240 5% 14%;
+    --muted-foreground: 240 4% 55%;
+    --accent: 262 83% 15%;
+    --accent-foreground: 262 83% 75%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 6% 18%;
+    --ring: 262 83% 65%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground antialiased; }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-xl;
   }
-  body {
-    @apply bg-background text-foreground antialiased;
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600;
+  }
+
+  .gradient-btn {
+    @apply bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 text-white hover:from-violet-700 hover:via-purple-700 hover:to-indigo-700 shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/30 transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+  }
+
+  .section-padding {
+    @apply py-16 md:py-24;
+  }
+
+  .container-narrow {
+    @apply container mx-auto px-4 max-w-6xl;
   }
 }
 
