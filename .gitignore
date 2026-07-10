@@ -4,7 +4,7 @@ node_modules/
 .pnp.js
 
 # Build
-.next/cache/
+.next/
 out/
 dist/
 build/
@@ -47,3 +47,6 @@ memory/
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+.env*
