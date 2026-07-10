@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ id: string }> };
 
-const WHATSAPP = "5519987203886";
+const WHATSAPP = "5519998666853";
 
 export default async function ConfirmacaoPage({ params }: Props) {
   const { id } = await params;

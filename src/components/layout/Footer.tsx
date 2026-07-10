@@ -46,7 +46,7 @@ export function Footer() {
             <h4 className="font-semibold text-white text-sm mb-4 uppercase tracking-wider">Contato</h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li>contato@stickershop.com.br</li>
-              <li>(19) 98720-3886</li>
+              <li>(19) 99866-6853</li>
               <li>Seg a Sex: 9h às 18h</li>
               <li>WhatsApp disponível 24h</li>
             </ul>

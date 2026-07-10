@@ -10,7 +10,7 @@ import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 import Link from "next/link";
 
-const WHATSAPP = "5519987203886";
+const WHATSAPP = "5519998666853";
 
 type Step = "review" | "confirm";
 
