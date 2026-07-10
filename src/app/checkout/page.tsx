@@ -72,7 +72,6 @@ export default function CheckoutPage() {
       const order = await res.json();
       const protocolo = order.id.slice(-8).toUpperCase();
 
-      // Monta itens
       const itensTexto = items
         .map((i) => {
           const nome = i.itemType === "personalizado" ? "Figurinha Personalizada" : i.name;
@@ -80,22 +79,19 @@ export default function CheckoutPage() {
         })
         .join("\n");
 
-      // WhatsApp
-      const msg =
-        `*NOVO PEDIDO - STICKERSHOP*%0A%0A` +
-        `*Protocolo:* ${protocolo}%0A` +
-        `*Total:* ${totalStr}%0A%0A` +
-        `*ITENS:*%0A${encodeURIComponent(itensTexto)}%0A%0A` +
-        `*ADMIN:*%0A` +
-        `stickershop.onrender.com/admin%0A` +
-        `admin@stickershop.com.br / admin123`;
+      const msg = encodeURIComponent(
+        `*NOVO PEDIDO - STICKERSHOP*\n\n` +
+        `*Protocolo:* ${protocolo}\n` +
+        `*Total:* ${totalStr}\n\n` +
+        `*ITENS:*\n${itensTexto}\n\n` +
+        `*ADMIN:*\n` +
+        `stickershop2.vercel.app/admin\n` +
+        `admin@stickershop.com.br / admin123`
+      );
 
       clearCart();
 
-      // Abre WhatsApp
       window.open(`https://wa.me/${WHATSAPP}?text=${msg}`, "_blank");
-
-      // Vai pra confirmação
       router.push(`/confirmacao/${order.id}`);
     } catch (err: any) {
       toast.error("Erro ao processar. Tente novamente.");

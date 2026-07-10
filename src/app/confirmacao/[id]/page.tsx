@@ -41,7 +41,7 @@ export default async function ConfirmacaoPage({ params }: Props) {
       `*Total:* ${formatCurrency(order.total)}\n\n` +
       `*ITENS:*\n${itensTexto}\n\n` +
       `*ADMIN:*\n` +
-      `stickershop.onrender.com/admin\n` +
+      `stickershop2.vercel.app/admin\n` +
       `admin@stickershop.com.br / admin123`
   );
 
