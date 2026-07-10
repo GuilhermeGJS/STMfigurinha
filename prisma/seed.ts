@@ -18,6 +18,17 @@ async function main() {
   await prisma.promotionRule.deleteMany();
   await prisma.user.deleteMany();
 
+  // Guest user (usado em compras sem login)
+  const guestHash = await bcrypt.hash("guest123", 12);
+  await prisma.user.create({
+    data: {
+      name: "Visitante",
+      email: "guest@stickershop.com.br",
+      passwordHash: guestHash,
+      role: "cliente",
+    },
+  });
+
   // Admin user
   const adminHash = await bcrypt.hash("admin123", 12);
   await prisma.user.create({

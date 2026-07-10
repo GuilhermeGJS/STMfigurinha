@@ -5,7 +5,13 @@ import { prisma } from "@/lib/db";
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    const userId = (session?.user as any)?.id || null;
+    let userId = (session?.user as any)?.id || null;
+
+    // Se não tem sessão, usa o usuário guest do banco
+    if (!userId) {
+      const guest = await prisma.user.findUnique({ where: { email: "guest@stickershop.com.br" } });
+      if (guest) userId = guest.id;
+    }
 
     const body = await req.json();
     const { items } = body || {};
@@ -35,7 +41,7 @@ export async function POST(req: Request) {
 
     const order = await prisma.order.create({
       data: {
-        userId: userId || null,
+        userId,
         status: "aguardando_pagamento",
         subtotal,
         discountTotal: 0,
